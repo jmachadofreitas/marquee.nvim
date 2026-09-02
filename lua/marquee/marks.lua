@@ -98,9 +98,28 @@ function M.line_marks(bufnr, line)
   return items
 end
 
+function M._buffer_clear_targets(mark_data)
+  local targets = {}
+
+  for _, item in ipairs(mark_data) do
+    local mark = M.normalize_mark(item.mark)
+    -- Buffer clearing deliberately applies only to local primary marks. Uppercase
+    -- marks are global/file marks and remain the responsibility of clear_all().
+    if mark and M.is_primary_mark(mark) and not M.is_upper_mark(mark) then table.insert(targets, mark) end
+  end
+
+  return targets
+end
+
 function M.clear_buffer()
-  vim.cmd 'delmarks!'
-  signs.refresh_buffer(vim.api.nvim_get_current_buf())
+  local bufnr = vim.api.nvim_get_current_buf()
+  local targets = M._buffer_clear_targets(vim.fn.getmarklist(bufnr))
+
+  for _, mark in ipairs(targets) do
+    pcall(vim.api.nvim_buf_del_mark, bufnr, mark)
+  end
+
+  signs.refresh_buffer(bufnr)
 end
 
 function M.clear_all()

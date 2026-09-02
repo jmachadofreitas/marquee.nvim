@@ -31,6 +31,7 @@ function M.setup(config)
   if not ok then return end
 
   local delete_mapping = config.mappings and config.mappings.delete or 'dm'
+  local clear_buffer_mapping = config.mappings and config.mappings.clear_buffer or 'dm|'
   local clear_all_mapping = config.mappings and config.mappings.clear_all or 'dM'
   local spec = {
     { '<leader>m', group = '[M]arks' },
@@ -38,6 +39,7 @@ function M.setup(config)
     { delete_mapping, desc = 'Delete mark {a-zA-Z}' },
     { delete_mapping .. '-', desc = 'Delete marks on current line' },
     { delete_mapping .. ' ', desc = 'Delete marks on current line' },
+    { clear_buffer_mapping, desc = 'Delete marks in current buffer' },
     { clear_all_mapping, desc = 'Delete all primary marks' },
   }
 

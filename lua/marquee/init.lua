@@ -12,6 +12,7 @@ local defaults = {
   mappings = {
     set = 'm',
     delete = 'dm',
+    clear_buffer = 'dm|',
     telescope = '<leader>mm',
     clear_all = 'dM',
     toggle_signs = '<leader>ms',
@@ -70,6 +71,7 @@ local function setup_keymaps()
   map(mappings.delete, M.delete, 'Marquee delete mark')
   map(mappings.delete .. '-', M.delete_line, 'Marquee delete marks on current line')
   map(mappings.delete .. ' ', M.delete_line, 'Marquee delete marks on current line')
+  map(mappings.clear_buffer, M.clear_buffer, 'Marquee clear marks in current buffer')
   map(mappings.telescope, picker.open, 'Marquee Telescope marks')
   map(mappings.clear_all, M.clear, 'Marquee clear all marks')
   map(mappings.toggle_signs, '<cmd>MarqueeToggleSigns<CR>', 'Marquee toggle signs')
