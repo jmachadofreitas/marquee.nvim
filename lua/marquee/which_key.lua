@@ -1,5 +1,8 @@
 local M = {}
 
+-- Whether setup() enabled the integration; read by the health check.
+M.active = false
+
 local default_marks_expand = nil
 
 local function mark_items(scope)
@@ -25,23 +28,30 @@ local function mark_items(scope)
 end
 
 function M.setup(config)
+  M.active = false
   if not config.which_key then return end
 
   local ok, which_key = pcall(require, 'which-key')
-  if not ok then return end
+  -- The spec API used below needs which-key v3.
+  if not ok or type(which_key.add) ~= 'function' then return end
+  M.active = true
 
-  local delete_mapping = config.mappings and config.mappings.delete or 'dm'
-  local clear_buffer_mapping = config.mappings and config.mappings.clear_buffer or 'dm|'
-  local clear_all_mapping = config.mappings and config.mappings.clear_all or 'dM'
-  local spec = {
-    { '<leader>m', group = '[M]arks' },
-    { delete_mapping, group = 'Delete Marks' },
-    { delete_mapping, desc = 'Delete mark {a-zA-Z}' },
-    { delete_mapping .. '-', desc = 'Delete marks on current line' },
-    { delete_mapping .. ' ', desc = 'Delete marks on current line' },
-    { clear_buffer_mapping, desc = 'Delete marks in current buffer' },
-    { clear_all_mapping, desc = 'Delete all primary marks' },
-  }
+  -- Only label mappings that exist: `keymaps = false` disables all of them, and
+  -- a single mapping is disabled with `false` or `''`.
+  local mappings = config.keymaps and config.mappings or {}
+  local function enabled(lhs) return type(lhs) == 'string' and lhs ~= '' end
+  local spec = {}
+  if config.keymaps then table.insert(spec, { '<leader>m', group = '[M]arks' }) end
+  if enabled(mappings.delete) then
+    vim.list_extend(spec, {
+      { mappings.delete, group = 'Delete Marks' },
+      { mappings.delete, desc = 'Delete mark {a-zA-Z}' },
+      { mappings.delete .. '-', desc = 'Delete marks on current line' },
+      { mappings.delete .. ' ', desc = 'Delete marks on current line' },
+    })
+  end
+  if enabled(mappings.clear_buffer) then table.insert(spec, { mappings.clear_buffer, desc = 'Delete marks in current buffer' }) end
+  if enabled(mappings.clear_all) then table.insert(spec, { mappings.clear_all, desc = 'Delete all primary marks' }) end
 
   local ok_marks, marks_plugin = pcall(require, 'which-key.plugins.marks')
   if not ok_marks then
@@ -69,8 +79,10 @@ function M.setup(config)
 
   if config.display.which_key == 'primary' then
     use_primary_marks()
-    table.insert(spec, 2, { "<space>'", function() show_default_marks "'" end, desc = 'All marks' })
-    table.insert(spec, 3, { '<space>`', function() show_default_marks '`' end, desc = 'All marks' })
+    if config.keymaps then
+      table.insert(spec, { "<space>'", function() show_default_marks "'" end, desc = 'All marks' })
+      table.insert(spec, { '<space>`', function() show_default_marks '`' end, desc = 'All marks' })
+    end
   else
     use_default_marks()
   end

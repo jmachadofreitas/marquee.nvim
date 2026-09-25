@@ -25,6 +25,7 @@ local defaults = {
 }
 M.config = nil
 
+M.refresh = signs.refresh
 M.refresh_signs = signs.refresh
 M.toggle_signs = signs.toggle
 M.list_marks = marks.list_marks
@@ -68,9 +69,20 @@ local function setup_keymaps()
   local picker = require 'marquee.picker'
 
   map(mappings.set, M.set, 'Marquee set mark')
-  map(mappings.delete, M.delete, 'Marquee delete mark')
-  map(mappings.delete .. '-', M.delete_line, 'Marquee delete marks on current line')
-  map(mappings.delete .. ' ', M.delete_line, 'Marquee delete marks on current line')
+  if mappings.delete and mappings.delete ~= '' then
+    -- When clear_buffer is the delete mapping plus one key (`dm|`), that key
+    -- reaches the delete mapping once 'timeoutlen' has passed.
+    local clear = mappings.clear_buffer or ''
+    local clear_key = #clear == #mappings.delete + 1 and clear:sub(1, -2) == mappings.delete and clear:sub(-1) or nil
+    map(mappings.delete, function()
+      local ok, key = pcall(vim.fn.getcharstr)
+      if not ok or key == '' then return end
+      if key == clear_key then return M.clear_buffer() end
+      M.delete { args = key }
+    end, 'Marquee delete mark')
+    map(mappings.delete .. '-', M.delete_line, 'Marquee delete marks on current line')
+    map(mappings.delete .. ' ', M.delete_line, 'Marquee delete marks on current line')
+  end
   map(mappings.clear_buffer, M.clear_buffer, 'Marquee clear marks in current buffer')
   map(mappings.telescope, picker.open, 'Marquee Telescope marks')
   map(mappings.clear_all, M.clear, 'Marquee clear all marks')
@@ -87,6 +99,13 @@ end
 
 function M.setup(opts)
   M.config = vim.tbl_deep_extend('force', vim.deepcopy(defaults), opts or {})
+  for key, default in pairs(defaults.display) do
+    local value = M.config.display[key]
+    if value ~= 'primary' and value ~= 'all' then
+      vim.notify(("marquee: display.%s must be 'primary' or 'all', got %s"):format(key, vim.inspect(value)), vim.log.levels.WARN)
+      M.config.display[key] = default
+    end
+  end
 
   signs.setup {
     enabled = M.config.signs,

@@ -28,8 +28,8 @@ local function define_sign(mark)
   sign_cache[name] = true
   vim.fn.sign_define(name, {
     text = mark,
-    texthl = 'MarkSignHL',
-    numhl = 'MarkSignNumHL',
+    texthl = 'MarqueeSign',
+    numhl = 'MarqueeSignNum',
   })
 end
 
@@ -139,8 +139,8 @@ end
 function M.setup(opts)
   cfg = opts
   signs_by_buffer = {}
-  vim.api.nvim_set_hl(0, 'MarkSignHL', { default = true, link = 'DiagnosticHint' })
-  vim.api.nvim_set_hl(0, 'MarkSignNumHL', { default = true, link = 'MarkSignHL' })
+  vim.api.nvim_set_hl(0, 'MarqueeSign', { default = true, link = 'DiagnosticHint' })
+  vim.api.nvim_set_hl(0, 'MarqueeSignNum', { default = true, link = 'MarqueeSign' })
 end
 
 return M

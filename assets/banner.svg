@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="220" viewBox="0 0 880 220" role="img" aria-label="marquee.nvim">
+  <style>
+    .bg { fill: #f6f8fa; stroke: #d0d7de; }
+    .gutter { fill: #eaeef2; }
+    .num { fill: #8c959f; }
+    .code { fill: #d0d7de; }
+    .sign { fill: #0969da; }
+    .sign-text { fill: #ffffff; }
+    .title { fill: #1f2328; }
+    .dim { fill: #57606a; }
+    .tagline { fill: #57606a; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; stroke: #30363d; }
+      .gutter { fill: #161b22; }
+      .num { fill: #6e7681; }
+      .code { fill: #30363d; }
+      .sign { fill: #58a6ff; }
+      .sign-text { fill: #0d1117; }
+      .title { fill: #e6edf3; }
+      .dim { fill: #8b949e; }
+      .tagline { fill: #8b949e; }
+    }
+    text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  </style>
+
+  <rect class="bg" x="1" y="1" width="878" height="218" rx="14" />
+
+  <!-- editor gutter -->
+  <rect class="gutter" x="24" y="24" width="96" height="172" rx="8" />
+  <g font-size="14" text-anchor="end">
+    <text class="num" x="108" y="50">1</text>
+    <text class="num" x="108" y="78">2</text>
+    <text class="num" x="108" y="106">3</text>
+    <text class="num" x="108" y="134">4</text>
+    <text class="num" x="108" y="162">5</text>
+    <text class="num" x="108" y="190">6</text>
+  </g>
+  <!-- mark signs -->
+  <g font-size="15" font-weight="700" text-anchor="middle">
+    <rect class="sign" x="36" y="33" width="22" height="22" rx="5" />
+    <text class="sign-text" x="47" y="49">a</text>
+    <rect class="sign" x="36" y="117" width="22" height="22" rx="5" />
+    <text class="sign-text" x="47" y="133">b</text>
+    <rect class="sign" x="36" y="173" width="22" height="22" rx="5" />
+    <text class="sign-text" x="47" y="189">A</text>
+  </g>
+  <!-- code lines -->
+  <g>
+    <rect class="code" x="136" y="40" width="120" height="12" rx="6" />
+    <rect class="code" x="136" y="68" width="80" height="12" rx="6" />
+    <rect class="code" x="152" y="96" width="100" height="12" rx="6" />
+    <rect class="code" x="152" y="124" width="70" height="12" rx="6" />
+    <rect class="code" x="136" y="152" width="40" height="12" rx="6" />
+    <rect class="code" x="136" y="180" width="110" height="12" rx="6" />
+  </g>
+
+  <!-- wordmark -->
+  <text class="title" x="310" y="112" font-size="64" font-weight="700">marquee<tspan class="dim">.nvim</tspan></text>
+  <text class="tagline" x="314" y="152" font-size="20">primary mark signs &amp; filtered mark views</text>
+</svg>

@@ -1,0 +1,191 @@
+*marquee.txt*    Primary mark signs and filtered mark views for Neovim
+
+==============================================================================
+CONTENTS                                                     *marquee-contents*
+
+1. Introduction .............................................. |marquee-intro|
+2. Setup ..................................................... |marquee-setup|
+3. Commands ............................................... |marquee-commands|
+4. Keymaps ................................................. |marquee-keymaps|
+5. Display ................................................. |marquee-display|
+6. Highlights ........................................... |marquee-highlights|
+7. Lua API ..................................................... |marquee-api|
+8. Health ................................................... |marquee-health|
+9. Limitations ......................................... |marquee-limitations|
+
+==============================================================================
+1. INTRODUCTION                                                 *marquee-intro*
+
+marquee is a small marks helper plugin. It focuses on primary marks: the
+letter marks `a-z` (buffer local) and `A-Z` (global/file marks).
+
+It provides:
+
+- gutter signs for primary marks
+- filtered marks views for Telescope and which-key
+- helpers for deleting marks on the current line, in the current buffer, or
+  all primary marks at once
+
+Requirements: Neovim 0.9+. telescope.nvim and which-key.nvim (v3 or newer) are
+optional. which-key.nvim has to be available when `setup()` runs, otherwise
+its integration is skipped.
+
+==============================================================================
+2. SETUP                                                        *marquee-setup*
+
+>lua
+  require('marquee').setup()
+<
+
+Default configuration: >lua
+  require('marquee').setup {
+    sign_group = 'marquee-signs',
+    sign_priority = 10,
+    signs = true,       -- show signs for primary marks
+    keymaps = true,     -- create the default mappings
+    which_key = true,   -- enable which-key integration when available
+    mappings = {
+      set = 'm',
+      delete = 'dm',
+      clear_buffer = 'dm|',
+      telescope = '<leader>mm',
+      clear_all = 'dM',
+      toggle_signs = '<leader>ms',
+      refresh = '<leader>mr',
+    },
+    display = {
+      telescope = 'primary', -- 'primary' | 'all'
+      which_key = 'primary', -- 'primary' | 'all'
+    },
+  }
+<
+
+Set a single mapping to `false` or `''` to disable it. Set `keymaps = false`
+to disable all of them.
+
+==============================================================================
+3. COMMANDS                                                  *marquee-commands*
+
+                                                              *:MarqueeRefresh*
+:MarqueeRefresh
+  Refresh mark signs in all loaded buffers.
+
+                                                          *:MarqueeToggleSigns*
+:MarqueeToggleSigns [bufnr]
+  Toggle signs globally, or for one buffer when a buffer number is given.
+
+                                                           *:MarqueeTelescope*
+:MarqueeTelescope
+  Open the marks picker. Falls back to `:marks` without telescope.nvim.
+
+                                                                *:MarqueeClear*
+:MarqueeClear
+  Delete all primary marks `a-z` (in every loaded buffer) and `A-Z`.
+
+                                                          *:MarqueeClearBuffer*
+:MarqueeClearBuffer
+  Delete the local primary marks `a-z` in the current buffer.
+
+                                                               *:MarqueeDelete*
+:MarqueeDelete [mark]
+  Delete a primary mark by name. Without an argument, waits for a mark key.
+  `-` or `<Space>` delete the primary marks on the current line.
+
+                                                           *:MarqueeDeleteLine*
+:MarqueeDeleteLine
+  Delete primary marks on the current line.
+
+==============================================================================
+4. KEYMAPS                                                    *marquee-keymaps*
+
+Default mappings (normal mode):
+
+`m{char}`          Set a mark and refresh signs.
+`dm{char}`         Delete primary mark {char}.
+`dm-`              Delete primary marks on the current line.
+`dm<Space>`        Delete primary marks on the current line.
+`dm|`              Delete local primary marks in the current buffer.
+`dM`               Delete all primary marks.
+`<leader>mm`       Open the marks picker.
+`<leader>ms`       Toggle signs.
+`<leader>mr`       Refresh signs.
+
+==============================================================================
+5. DISPLAY                                                    *marquee-display*
+
+which-key integration ~
+
+When `display.which_key = 'primary'`:
+
+- `'` and `` ` `` show only primary marks
+- <Space>' and <Space>` show which-key's default, unfiltered marks popup
+
+When `display.which_key = 'all'`, the which-key marks popup is left as is.
+
+Telescope integration ~
+
+When `display.telescope = 'primary'`, the picker shows only primary marks.
+When `display.telescope = 'all'`, it shows all marks.
+
+If telescope.nvim is unavailable, marquee falls back to `:marks`.
+
+==============================================================================
+6. HIGHLIGHTS                                              *marquee-highlights*
+
+`MarqueeSign`       Sign text. Links to `DiagnosticHint` by default.
+`MarqueeSignNum`    Line number of a marked line. Links to `MarqueeSign`.
+
+==============================================================================
+7. LUA API                                                        *marquee-api*
+
+>lua
+  local marquee = require 'marquee'
+<
+
+`marquee.setup(opts)`
+  Set up marquee. See |marquee-setup|.
+
+`marquee.refresh()`
+  Refresh all signs.
+
+`marquee.toggle_signs(opts)`
+  Toggle signs globally, or for the buffer given in `opts.args`.
+
+`marquee.list_marks(scope, opts)`
+  Return marks for scope `"primary"` or `"all"`. `opts.bufnr` selects the
+  buffer whose local marks are included (default: current buffer).
+
+`marquee.clear()`
+  Delete all primary marks.
+
+`marquee.clear_buffer()`
+  Delete local primary marks in the current buffer.
+
+`marquee.delete(opts)`
+  Delete the mark given in `opts.args`, or wait for a mark key.
+
+`marquee.delete_line()`
+  Delete primary marks on the current line.
+
+`marquee.set()`
+  Wait for a mark key and set it.
+
+==============================================================================
+8. HEALTH                                                      *marquee-health*
+
+Run `:checkhealth marquee` to check the Neovim version, whether `setup()` has
+run, and which optional integrations are available.
+
+==============================================================================
+9. LIMITATIONS                                            *marquee-limitations*
+
+- Native `:delmarks` is not intercepted.
+- Marks changed outside marquee (for example with `keymaps = false`) show up
+  on the next |BufEnter| or after |:MarqueeRefresh|.
+
+==============================================================================
+CREDITS                                                       *marquee-credits*
+
+Inspired by chentoast/marks.nvim.
+
+vim:tw=78:ts=8:noet:ft=help:norl:

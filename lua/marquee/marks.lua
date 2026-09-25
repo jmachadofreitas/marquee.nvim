@@ -50,7 +50,10 @@ function M.list_marks(scope, opts)
 
     local mark_bufnr, lnum, col = pos[1], pos[2], pos[3]
     local file = mark_data.file or ((mark_bufnr and mark_bufnr > 0) and vim.api.nvim_buf_get_name(mark_bufnr)) or bufname
-    if not file or file == '' then return end
+
+    -- A buffer without a name still has valid marks.
+    local unnamed = file == '' and mark_bufnr ~= nil and mark_bufnr > 0
+    if not file or (file == '' and not unnamed) then return end
 
     local key = table.concat({ source, mark_bufnr or 0, lnum, mark, file }, ':')
     if seen[key] then return end
@@ -69,8 +72,8 @@ function M.list_marks(scope, opts)
       lnum = lnum,
       col = col,
       bufnr = mark_bufnr,
-      filename = vim.fn.fnamemodify(file, ':p'),
-      file_display = vim.fn.fnamemodify(file, ':p:~:.'),
+      filename = unnamed and '' or vim.fn.fnamemodify(file, ':p'),
+      file_display = unnamed and '[No Name]' or vim.fn.fnamemodify(file, ':p:~:.'),
       source = source,
       label = M.labels[mark] or '',
     })
@@ -91,8 +94,9 @@ function M.line_marks(bufnr, line)
   local items = {}
 
   for _, item in ipairs(M.list_marks('primary', { bufnr = bufnr })) do
-    -- Blank lines still have valid marks, so only the line number matters here.
-    if item.lnum == line then table.insert(items, item.mark) end
+    -- Blank lines still have valid marks, so only the buffer and line number matter here.
+    -- Global marks from other files share line numbers.
+    if item.bufnr == bufnr and item.lnum == line then table.insert(items, item.mark) end
   end
 
   return items
@@ -103,8 +107,8 @@ function M._buffer_clear_targets(mark_data)
 
   for _, item in ipairs(mark_data) do
     local mark = M.normalize_mark(item.mark)
-    -- Buffer clearing deliberately applies only to local primary marks. Uppercase
-    -- marks are global/file marks and remain the responsibility of clear_all().
+    -- Buffer clearing deliberately applies only to local primary marks.
+    -- Uppercase marks are global/file marks and remain the responsibility of clear_all().
     if mark and M.is_primary_mark(mark) and not M.is_upper_mark(mark) then table.insert(targets, mark) end
   end
 

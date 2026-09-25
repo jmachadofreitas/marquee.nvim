@@ -16,7 +16,7 @@ function M.open(opts)
   opts = opts or {}
   opts.bufnr = opts.bufnr or vim.api.nvim_get_current_buf()
 
-  local scope = marquee.config.display.telescope or 'all'
+  local scope = marquee.config and marquee.config.display.telescope or 'primary'
   local items = {}
   local others = {}
 
@@ -27,6 +27,8 @@ function M.open(opts)
       lnum = item.lnum,
       col = item.col,
       filename = item.filename,
+      -- An unnamed buffer has no file to open, so Telescope gets the buffer.
+      bufnr = item.filename == '' and item.bufnr or nil,
     }
 
     if item.mark:match '%w' then
@@ -38,12 +40,18 @@ function M.open(opts)
 
   vim.list_extend(items, others)
 
+  local make = opts.entry_maker or make_entry.gen_from_marks(opts)
+
   pickers
     .new(opts, {
       prompt_title = scope == 'primary' and 'User Marks' or 'Marks',
       finder = finders.new_table {
         results = items,
-        entry_maker = opts.entry_maker or make_entry.gen_from_marks(opts),
+        entry_maker = function(row)
+          local entry = make(row)
+          if entry then entry.bufnr = row.bufnr end
+          return entry
+        end,
       },
       previewer = conf.grep_previewer(opts),
       sorter = conf.generic_sorter(opts),
