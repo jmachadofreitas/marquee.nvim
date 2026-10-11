@@ -10,7 +10,7 @@ A Neovim plugin for primary marks: the letter marks `a-z` (buffer local) and `A-
 
 It keeps the native `m`, `'` and `` ` `` workflow and stays out of the way otherwise.
 
-![demo](assets/demo.gif)
+<img width="1100" height="700" alt="demo" src="https://github.com/user-attachments/assets/c3bda944-d9bc-48c1-a8a7-a33db54fc098" />
 
 ## Requirements
 
